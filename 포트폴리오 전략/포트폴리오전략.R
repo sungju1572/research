@@ -310,3 +310,72 @@ data.frame(w) %>%
   geom_hline(aes(yintercept = 0.05), color = 'red') +
   geom_hline(aes(yintercept = 0.20), color = 'red') +
   xlab(NULL) + ylab(NULL)
+
+
+
+#optimalPortfolio 함수로 제약조건 추가해보기
+w_6 = optimalPortfolio(covmat,
+                       control = list(type = 'maxdiv',
+                                      constraint = 'user', #제약조건 직접입력
+                                      LB = c(0.10, 0.10, 0.05, 0.05, 0.10,0.10, 0.05, 0.05, 0.03, 0.03),
+                                      UB = c(0.25, 0.25, 0.20, 0.20, 0.20,0.20, 0.10, 0.10, 0.08, 0.08) %>%
+  round(., 4) %>%
+  setNames(colnames(rets))))
+
+print(w_6)
+
+
+##위험기여 포트폴리오
+#위험기여도 함수 만들기
+get_RC = function(w, covmat) {
+  port_vol = t(w) %*% covmat %*% w
+  port_std = sqrt(port_vol)
+  
+  MRC = (covmat %*% w) / as.numeric(port_std)
+  RC = MRC * w
+  RC = c(RC / sum(RC))
+  
+  return(RC)
+}
+
+#주식 60% 채권 40% 포트폴리오 위험기여도 확인
+ret_stock_bond = rets[, c(1, 5)]                    #데이터 : 미국주식 수익률(SPY), 미국 장기채(TLT)
+cov_stock_bond = cov(ret_stock_bond)                #분산-공분산 행렬
+RC_stock_bond = get_RC(c(0.6, 0.4), cov_stock_bond) #위험기여도 구하기
+RC_stock_bond = round(RC_stock_bond, 4)             #반올림
+
+print(RC_stock_bond)
+
+
+#rp() 함수를 써서 최적화하기
+library(cccp)
+
+opt = rp(x0 = rep(0.1, 10),   #최적화를 위한 초기입력값(동일비중 10%씩 넣기)
+         P = covmat,          #분산-공분산 행렬
+         mrc = rep(0.1, 10))  #목표로하는 자산별 위험기여도 값(동일비중 10%)
+
+
+w = getx(opt) %>% drop()
+w = (w / sum(w)) %>%
+  round(., 4) %>%
+  setNames(colnames(rets))
+
+print(w)
+
+get_RC(w, covmat) %>% round(.,4)
+
+
+#자산별로 다른 비중을 가지는 포트폴리오 만들기
+opt = rp(x0 = rep(0.1, 10),
+         P = covmat,
+         mrc = c(0.15, 0.15, 0.15, 0.15, 0.10,
+                 0.10, 0.05, 0.05, 0.05, 0.05))
+
+
+w = getx(opt) %>% drop()
+w = (w / sum(w)) %>%
+  round(., 4) %>%
+  setNames(colnames(rets))
+
+get_RC(w, covmat)
+print(w)
