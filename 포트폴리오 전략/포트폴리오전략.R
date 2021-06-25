@@ -355,7 +355,7 @@ opt = rp(x0 = rep(0.1, 10),   #최적화를 위한 초기입력값(동일비중 10%씩 넣기)
          mrc = rep(0.1, 10))  #목표로하는 자산별 위험기여도 값(동일비중 10%)
 
 
-w = getx(opt) %>% drop()
+w = getx(opt) %>% drop()      #벡터형태로 만들기
 w = (w / sum(w)) %>%
   round(., 4) %>%
   setNames(colnames(rets))
