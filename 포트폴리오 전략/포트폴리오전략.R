@@ -379,3 +379,5 @@ w = (w / sum(w)) %>%
 
 get_RC(w, covmat)
 print(w)
+
+#인덱스 포트폴리오 구성
