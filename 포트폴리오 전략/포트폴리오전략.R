@@ -391,3 +391,5 @@ KOSPI200 = KOR_ticker %>% filter(시장구분 == 'KOSPI') %>%
   slice(1:200) %>%
   mutate(시가총액비중 = 시가총액 / sum(시가총액))
 
+
+KOSPI200$시가총액
