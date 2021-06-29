@@ -381,3 +381,13 @@ get_RC(w, covmat)
 print(w)
 
 #인덱스 포트폴리오 구성
+# 상위 200 종목의 시가총액비중 계산
+library(stringr)
+library(dplyr)
+
+KOR_ticker = read.csv('C:\\Users\\sjyoo\\Desktop\\연구\\퀀트 포폴\\KOR_ticker.csv',row.names = 1, stringsAsFactors = FALSE) 
+
+KOSPI200 = KOR_ticker %>% filter(시장구분 == 'KOSPI') %>%
+  slice(1:200) %>%
+  mutate(시가총액비중 = 시가총액 / sum(시가총액))
+
