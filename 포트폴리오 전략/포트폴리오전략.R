@@ -387,9 +387,184 @@ library(dplyr)
 
 KOR_ticker = read.csv('C:\\Users\\sjyoo\\Desktop\\연구\\퀀트 포폴\\KOR_ticker.csv',row.names = 1, stringsAsFactors = FALSE) 
 
-KOSPI200 = KOR_ticker %>% filter(시장구분 == 'KOSPI') %>%
+#코스피 200중 상위 200개만 가져오기
+KOSPI200 = KOR_ticker %>% 
+  filter(시장구분 == 'KOSPI') %>%
   slice(1:200) %>%
   mutate(시가총액비중 = 시가총액 / sum(시가총액))
 
 
-KOSPI200$시가총액
+
+#시각화
+library(ggplot2)
+
+KOSPI200 %>% 
+  ggplot(aes(x = reorder(종목명, -시가총액비중), y = 시가총액비중)) +
+  geom_point() +
+  xlab('종목명') +
+  ylab('시가총액비중(%)') +
+  scale_y_continuous(labels = scales::percent)
+
+
+#그림 안이쁨 -> 수정하기
+KOSPI200 %>% 
+  ggplot(aes(x = reorder(종목명, -시가총액비중), y = 시가총액비중)) +   #시가총액비중으로 x축 정리
+  geom_point() +
+  xlab('종목명') +
+  ylab('시가총액비중(로그 스케일링)') +
+  scale_y_log10() +                                                     #y축 로그값으로 스케일링
+  scale_x_discrete(breaks = KOSPI200[seq(1, 200, by = 5), '종목명']) +  #x중 일부종목만 표시
+  theme(axis.text.x = element_text(angle = 60, hjust = 1))              #x축 글자 회전+ 위치조정
+
+#1억이있을때 코스피 200을 따라가는(복제하는) 포폴만드는법
+KOSPI200 = KOSPI200 %>%
+  mutate(매수금액 = 100000000 * 시가총액비중,
+             매수주수 = 매수금액 / 종가)
+
+KOSPI200 %>% select(매수금액, 매수주수) %>% head()
+
+
+#소수점 밑 버리기(반올림이나 올림하면 보유금액보다 커질수있음)
+KOSPI200 = KOSPI200 %>% mutate(매수주수 = floor(매수주수))
+KOSPI200 %>% select(매수금액, 매수주수) %>% head()
+
+#실제매수금액 구하기
+inv_money = KOSPI200 %>% mutate(실제매수금액 = 종가 * 매수주수) %>%
+  summarize(sum(실제매수금액))
+
+print(inv_money)
+
+##팩터를 이용한 인핸스드 포트폴리오 구성
+#PBR을 이용해 비중조절하기
+KOSPI200 = KOSPI200 %>% select(종목명, PBR, 시가총액비중) %>%
+  mutate(PBR = as.numeric(PBR)) 
+
+#단순가감법
+KOSPI200 = KOSPI200 %>%
+  mutate(랭킹 = rank(PBR),
+           조절비중 = ifelse(랭킹 <= 100, 시가총액비중 + 0.0005, 시가총액비중 - 0.0005),  #상위 100개 비중증가 / 하위 100개 비중감소
+           조절비중 = ifelse(조절비중 < 0, 0, 조절비중),                                  #0미만인 종목은 투자비중 0 으로 조정
+           조절비중 = 조절비중 / sum(조절비중),                                           #비중의 합을 1로 맞추기위해 다시계산
+           차이 = 조절비중 - 시가총액비중) 
+library(tidyr)
+
+head(KOSPI200)
+
+
+KOSPI200 %>% filter(조절비중 == 0)
+
+#시각화
+KOSPI200 %>% 
+  ggplot(aes(x = reorder(종목명, -시가총액비중), y = 시가총액비중)) +
+  geom_point() +
+  geom_point(data = KOSPI200, aes(x = reorder(종목명, -시가총액비중), y = 조절비중),
+             color = 'red', shape = 4) +
+  xlab('종목명') +
+  ylab('비중(%)') +
+  coord_cartesian(ylim = c(0, 0.03)) +
+  scale_x_discrete(breaks = KOSPI200[seq(1, 200, by = 5), '종목명']) +
+  scale_y_continuous(labels = scales::percent) +
+  theme(axis.text.x = element_text(angle = 60, hjust = 1)) 
+
+#
+KOSPI200_mod = KOSPI200 %>% arrange(PBR)
+
+KOSPI200_mod %>% 
+  ggplot(aes(x = reorder(종목명, PBR), y = 차이)) +
+  geom_point() +
+  geom_col(aes(x = reorder(종목명, PBR), y = PBR /10000), fill = 'blue', alpha = 0.2) +
+  xlab('종목명') +
+  ylab('차이(%)') +
+  scale_y_continuous(labels = scales::percent, 
+                     sec.axis = sec_axis(~. * 10000, name = "PBR")) +
+  scale_x_discrete(breaks = KOSPI200_mod[seq(1, 200, by = 10), '종목명']) +
+  theme(axis.text.x = element_text(angle = 60, hjust = 1))
+
+
+#Z-score 정규화로 펙터에 대한 노출 극대화
+KOSPI200_tilt = KOSPI200 %>%
+  select(종목명, PBR, 시가총액비중, 랭킹) %>%
+  mutate(zscore = -scale(랭킹),
+         cdf = pnorm(zscore),
+         투자비중 = 시가총액비중 * cdf,
+         투자비중 = 투자비중 / sum(투자비중),
+         차이 = 투자비중 - 시가총액비중)
+
+head(KOSPI200_tilt)
+
+#시각화
+KOSPI200 %>% 
+  ggplot(aes(x = reorder(종목명, -시가총액비중), y = 시가총액비중)) +
+  geom_point() +
+  geom_point(data = KOSPI200_tilt, aes(x = reorder(종목명, -시가총액비중), y = 투자비중),
+             color = 'red', shape = 4) +
+  xlab('종목명') +
+  ylab('비중(%)') +
+  coord_cartesian(ylim = c(0, 0.03)) +
+  scale_x_discrete(breaks = KOSPI200[seq(1, 200, by = 5), '종목명']) +
+  scale_y_continuous(labels = scales::percent) +
+  theme(axis.text.x = element_text(angle = 60, hjust = 1)) 
+
+#차이 시각화
+KOSPI200_tilt %>%
+  ggplot(aes(x = reorder(종목명, -시가총액비중), y = 차이)) +
+  geom_point() +
+  geom_hline(aes(yintercept = 0.005), color = 'red') + 
+  geom_hline(aes(yintercept = -0.005), color = 'red') +
+  xlab('종목명') +
+  ylab('비중 차이(%)') +
+  scale_x_discrete(breaks = KOSPI200[seq(1, 200, by = 5), '종목명']) +
+  scale_y_continuous(labels = scales::percent) +
+  theme(axis.text.x = element_text(angle = 60, hjust = 1)) 
+#차이가 너무큼! -> 제약조건 걸필요있음
+
+#제약조건 50bp설정
+
+while (max(abs(KOSPI200_tilt$차이)) > (0.005 + 0.00001)) {
+  KOSPI200_tilt = KOSPI200_tilt %>%
+    mutate_at(vars(투자비중), list(~ifelse(차이 < -0.005, 시가총액비중 - 0.005, 투자비중))) %>%  #차이가 50bp 미만이면 -50bp
+    mutate_at(vars(투자비중), list(~ifelse(차이 > 0.005, 시가총액비중 + 0.005, 투자비중))) %>%  #차이가 50bp 초과이면 +50bp
+    mutate(투자비중 = 투자비중 / sum(투자비중), 
+               차이 = 투자비중 - 시가총액비중)
+}
+
+head(KOSPI200_tilt)
+
+#결과 시각화
+KOSPI200_tilt %>%
+  ggplot(aes(x = reorder(종목명, -시가총액비중), y = 차이)) +
+  geom_point() +
+  geom_hline(aes(yintercept = 0.005), color = 'red') + 
+  geom_hline(aes(yintercept = -0.005), color = 'red') +
+  xlab('종목명') +
+  ylab('비중 차이(%)') +
+  scale_x_discrete(breaks = KOSPI200[seq(1, 200, by = 5), '종목명']) +
+  scale_y_continuous(labels = scales::percent) +
+  theme(axis.text.x = element_text(angle = 60, hjust = 1)) 
+
+#비중 시각화
+KOSPI200 %>% 
+  ggplot(aes(x = reorder(종목명, -시가총액비중), y = 시가총액비중)) +
+  geom_point() +
+  geom_point(data = KOSPI200_tilt, aes(x = reorder(종목명, -시가총액비중), y = 투자비중),
+             color = 'red', shape = 4) +
+  xlab('종목명') +
+  ylab('비중(%)') +
+  coord_cartesian(ylim = c(0, 0.03)) +
+  scale_x_discrete(breaks = KOSPI200[seq(1, 200, by = 5), '종목명']) +
+  scale_y_continuous(labels = scales::percent) +
+  theme(axis.text.x = element_text(angle = 60, hjust = 1)) 
+
+#PBR 시각화
+KOSPI200_tilt_mod = KOSPI200_tilt %>% arrange(PBR)
+
+KOSPI200_tilt_mod %>% 
+  ggplot(aes(x = reorder(종목명, PBR), y = 차이)) +
+  geom_point() +
+  geom_col(aes(x = reorder(종목명, PBR), y = PBR /2000), fill = 'blue', alpha = 0.2) +
+  xlab('종목명') +
+  ylab('차이(%)') +
+  scale_y_continuous(labels = scales::percent, 
+                     sec.axis = sec_axis(~. * 2000, name = "PBR")) +
+  scale_x_discrete(breaks = KOSPI200_mod[seq(1, 200, by = 10), '종목명']) +
+  theme(axis.text.x = element_text(angle = 60, hjust = 1))
