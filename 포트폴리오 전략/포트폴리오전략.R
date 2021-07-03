@@ -2,31 +2,31 @@ library(quantmod)
 library(PerformanceAnalytics)
 library(magrittr)
 
-#quantmod ÆĞÅ°Áö : ÁÖ½Äµ¥ÀÌÅÍ ÆĞÅ°±â 
+#quantmod ??Å°?? : ?Ö½Äµ????? ??Å°?? 
 
-symbols = c('SPY', # ¹Ì±¹ ÁÖ½Ä
-            'IEV', # À¯·´ ÁÖ½Ä 
-            'EWJ', # ÀÏº» ÁÖ½Ä
-            'EEM', # ÀÌ¸ÓÂ¡ ÁÖ½Ä
-            'TLT', # ¹Ì±¹ Àå±âÃ¤
-            'IEF', # ¹Ì±¹ Áß±âÃ¤
-            'IYR', # ¹Ì±¹ ¸®Ã÷
-            'RWX', # ±Û·Î¹ú ¸®Ã÷
-            'GLD', # ±İ
-            'DBC'  # »óÇ°
+symbols = c('SPY', # ?Ì±? ?Ö½?
+            'IEV', # ï¿½ï¿½?? ?Ö½? 
+            'EWJ', # ?Ïº? ?Ö½?
+            'EEM', # ?Ì¸?Â¡ ?Ö½?
+            'TLT', # ?Ì±? ????Ã¤
+            'IEF', # ?Ì±? ?ß±?Ã¤
+            'IYR', # ?Ì±? ????
+            'RWX', # ?Û·Î¹? ????
+            'GLD', # ??
+            'DBC'  # ??Ç°
 )
 
-#ÁÖ½Äµ¥ÀÌÅÍ °¡Á®¿À±â 
-#ÁÖ½Ä µ¥ÀÌÅÍ, È¯À² µ¥ÀÌÅÍ, ¿øÀÚÀç °¡°İ, ±× ¿Ü FRED¿¡¼­ °ø°³ÇÑ µ¥ÀÌÅÍ´Â ´Ù °¡Á®¿Ã ¼ö ÀÖ´Ù.
+#?Ö½Äµ????? ??ï¿½ï¿½?ï¿½ï¿½? 
+#?Ö½? ??????, È¯ï¿½ï¿½ ??????, ?????? ????, ?? ?? FRED???? ?????? ?????Í´? ?? ??ï¿½ï¿½?? ?? ?Ö´?.
 getSymbols(symbols, src = 'yahoo')
 
 
-#¼öÁ¤Á¾°¡¸¸ °¡Á®¿À°í ¸®½ºÆ®·Î ¹­±â
+#??ï¿½ï¿½ï¿½ï¿½???? ??ï¿½ï¿½?ï¿½ï¿½? ????Æ®?? ????
 prices = do.call(cbind,
                  lapply(symbols, function(x) Ad(get(x)))) %>%
   setNames(symbols)
 
-#¼öÀÍ·ü °è»ê
+#???Í·? ????
 rets = Return.calculate(prices) %>% na.omit()
 
 
@@ -35,7 +35,7 @@ library(tidyr)
 library(dplyr)
 library(corrplot)
 
-#etf°£ »ó°ü¼º ±¸ÇÏ±â
+#etf?? ?????? ???Ï±?
 cor(rets) %>%
   corrplot(method = 'color', type = 'lower',
            addCoef.col = 'black', number.cex = 0.7,
@@ -44,41 +44,41 @@ cor(rets) %>%
              colorRampPalette(c('blue', 'white', 'red'))(200),
            mar = c(0,0,0.5,0))
 
-#ºĞ»ê-°øºĞ»ê Çà·Ä
+#?Ğ»?-???Ğ»? ????
 covmat = cov(rets)
 
-##ÃÖ¼Òºñ¿ë Æ÷Æ®Æú¸®¿À
+##?Ö¼Òº??? ??Æ®??????
 #slsqp()
 
-#¸ñÀûÇÔ¼ö
+#?????Ô¼?
 objective = function(w) {
   obj = t(w) %*% covmat %*% w
   return(obj)
 }
 
-#Á¦¾àÁ¶°Ç 
+#ï¿½ï¿½??ï¿½ï¿½?? 
 hin.objective = function(w) {
   return(w)
 }
 
-#ÀÚ»ê±ºÇÕÀº 1ÀÌ¶ó´Â Á¦¾àÁ¶°Ç
+#?Ú»ê±º??ï¿½ï¿½ 1?Ì¶??? ï¿½ï¿½??ï¿½ï¿½??
 heq.objective = function(w) {
   sum_w = sum(w)
   return( sum_w - 1 )
 }
 
-#½ÇÇà
+#????
 library(nloptr)
 
-result = slsqp( x0 = rep(0.1, 10),    #ÃÊ±â°ª (0.1, 10°³)
-                fn = objective,       #¸ñÀûÇÔ¼ö
-                hin = hin.objective,  #ºÎµîÀ§ Á¦¾àÁ¶°Ç
-                heq = heq.objective)  #µîÀ§ Á¦¾àÁ¶°Ç
+result = slsqp( x0 = rep(0.1, 10),    #?Ê±â°ª (0.1, 10??)
+                fn = objective,       #?????Ô¼?
+                hin = hin.objective,  #?Îµ?ï¿½ï¿½ ï¿½ï¿½??ï¿½ï¿½??
+                heq = heq.objective)  #??ï¿½ï¿½ ï¿½ï¿½??ï¿½ï¿½??
 
-#ÃÖÀûÈ­µÈ ÁöÁ¡ÀÇ ÇØ, ÃÖ¼ÒºĞ»ê Æ÷Æ®Æú¸®¿À¸¦ ±¸¼ºÇÏ´Â ÀÚ»êµéÀÇ ÅõÀÚ ºñÁß
+#????È­?? ??ï¿½ï¿½?? ??, ?Ö¼ÒºĞ»? ??Æ®?????ï¿½ï¿½? ?????Ï´? ?Ú»????? ???? ????
 print(result$par)
 
-#»êÃâµÈ °ªÀ» ¸ñÀûÇÔ¼ö fn¿¡ ÀÔ·ÂÇÏ¿´À» ¶§ ³ª¿À´Â °á±£°ªÀ¸·Î½á, Æ÷Æ®Æú¸®¿ÀÀÇ ºĞ»êÀ» ÀÇ¹Ì
+#?????? ??ï¿½ï¿½ ?????Ô¼? fn?? ?Ô·??Ï¿?ï¿½ï¿½ ?? ???ï¿½ï¿½? ?á±£??ï¿½ï¿½?Î½?, ??Æ®???????? ?Ğ»?ï¿½ï¿½ ?Ç¹?
 print(result$value)
 
 w_1 = result$par %>% round(., 4) %>%
@@ -90,19 +90,19 @@ sum(w_1)
 
 #solve.QP()
 
-Dmat = covmat                                    #ºĞ»ê-°øºĞ»ê Çà·Ä
-dvec = rep(0, 10)                                #º¤ÅÍºÎºĞ (Æ÷Æ®Æú¸®¿À ÃÖÀûÈ­¿¡¼­´Â ¿ªÇÒ x)
-Amat = t(rbind(rep(1, 10), diag(10), -diag(10))) #Á¦¾àÁ¶°Ç(ÁÂº¯)
-bvec = c(1, rep(0, 10), -rep(1, 10))             #Á¦¾àÁ¶°Ç(¿ìº¯) (ºñÁßÀÇ ÇÕÀÌ1, °¢ ºñÁßÀÌ 0º¸´ÙÅ­)
-meq = 1                                          #µîÀ§ Á¦¾àÁ¶°Ç °³¼ö (ºñÁßÀÇ ÇÕÀÌ 1)
+Dmat = covmat                                    #?Ğ»?-???Ğ»? ????
+dvec = rep(0, 10)                                #???ÍºÎº? (??Æ®?????? ????È­?????? ???? x)
+Amat = t(rbind(rep(1, 10), diag(10), -diag(10))) #ï¿½ï¿½??ï¿½ï¿½??(?Âº?)
+bvec = c(1, rep(0, 10), -rep(1, 10))             #ï¿½ï¿½??ï¿½ï¿½??(?ìº¯) (?????? ????1, ?? ?????? 0????Å­)
+meq = 1                                          #??ï¿½ï¿½ ï¿½ï¿½??ï¿½ï¿½?? ???? (?????? ???? 1)
 
-#½ÇÇà
+#????
 library(quadprog)
 result = solve.QP(Dmat, dvec, Amat, bvec, meq)
 
-#ÃÖÀûÈ­µÈ ÁöÁ¡ÀÇÇØ, Áï ÃÖ¼ÒºĞ»ê Æ÷Æ®Æú¸®¿À¸¦ ±¸¼ºÇÏ´Â ÀÚ»êµéÀÇ ÅõÀÚºñ¿ë
+#????È­?? ??ï¿½ï¿½????, ?? ?Ö¼ÒºĞ»? ??Æ®?????ï¿½ï¿½? ?????Ï´? ?Ú»????? ???Úº???
 print(result$solution)
-#$solution ¿¡¼­ »êÃâµÈ °ªÀ» ¸ñÀûÇÔ¼ö¿¡ ÀÔ·ÂÇßÀ» ‹š ³ª¿À´Â °á°ú°ª, Æ÷Æ®Æú¸®¿ÀÀÇ ºĞ»ê
+#$solution ???? ?????? ??ï¿½ï¿½ ?????Ô¼??? ?Ô·???ï¿½ï¿½ ?? ???ï¿½ï¿½? ??????, ??Æ®???????? ?Ğ»?
 print(result$value)
 
 
@@ -126,7 +126,7 @@ print(w_3)
 sum(w_3)
 
 
-#°á°ú°ªµé ºñ±³
+#???????? ????
 library(ggplot2)
 
 data.frame(w_1) %>%
@@ -136,24 +136,24 @@ data.frame(w_1) %>%
   xlab(NULL) + ylab(NULL)
 
 
-#Á¦¾àÁ¶°Ç Ãß°¡ slsqp()
+#ï¿½ï¿½??ï¿½ï¿½?? ?ß°? slsqp()
 result = slsqp( x0 = rep(0.1, 10),
                 fn = objective,
                 hin = hin.objective,
                 heq = heq.objective,
-                lower = rep(0.05, 10), #ÃÖ¼ÒÅõÀÚºñ¿ë
-                upper = rep(0.20, 10)) #ÃÖ´ëÅõÀÚºñ¿ë
+                lower = rep(0.05, 10), #?Ö¼????Úº???
+                upper = rep(0.20, 10)) #?Ö´????Úº???
 
 w_4 = result$par %>% round(., 4) %>%
   setNames(colnames(rets))
 
 print(w_4)
 
-#Á¦¾àÁ¶°Ç Ãß°¡ solve.QP()
+#ï¿½ï¿½??ï¿½ï¿½?? ?ß°? solve.QP()
 Dmat = covmat
 dvec = rep(0, 10)
 Amat = t(rbind(rep(1, 10), diag(10), -diag(10)))
-bvec = c(1, rep(0.05, 10), -rep(0.20, 10)) #ÃÖ¼Ò ÃÖ´ë ÅõÀÚºñ¿ë
+bvec = c(1, rep(0.05, 10), -rep(0.20, 10)) #?Ö¼? ?Ö´? ???Úº???
 meq = 1
 
 result = solve.QP(Dmat, dvec, Amat, bvec, meq)
@@ -163,10 +163,10 @@ w_5 = result$solution %>% round(., 4) %>%
 
 print(w_5)
 
-#Á¦¾àÁ¶°Ç Ãß°¡ optimalProtfolio()
+#ï¿½ï¿½??ï¿½ï¿½?? ?ß°? optimalProtfolio()
 w_6 = optimalPortfolio(covmat,
                        control = list(type = 'minvol',
-                                      constraint = 'user', #Á¦¾àÁ¶°Ç Á÷Á¢ÀÔ·Â
+                                      constraint = 'user', #ï¿½ï¿½??ï¿½ï¿½?? ??ï¿½ï¿½?Ô·?
                                       LB = rep(0.05, 10),
                                       UB = rep(0.20, 10))) %>%
   round(., 4) %>%
@@ -175,7 +175,7 @@ w_6 = optimalPortfolio(covmat,
 print(w_6)
 
 
-#ÃÖ¼Ò ÃÖ´ë ºñÁßÁ¦¾à °á°úºñ±³
+#?Ö¼? ?Ö´? ????ï¿½ï¿½?? ????????
 data.frame(w_4) %>%
   ggplot(aes(x = factor(rownames(.), levels = rownames(.)),
              y = w_4)) +
@@ -184,11 +184,11 @@ data.frame(w_4) %>%
   geom_hline(aes(yintercept = 0.20), color = 'red') +
   xlab(NULL) + ylab(NULL)
 
-#°¢ ÀÚ»êº° Á¦¾àÁ¶°Ç Ãß°¡
+#?? ?Ú»êº° ï¿½ï¿½??ï¿½ï¿½?? ?ß°?
 Dmat = covmat
 dvec = rep(0, 10)
 Amat = t(rbind(rep(1, 10), diag(10), -diag(10))) 
-bvec = c(1, c(0.10, 0.10, 0.05, 0.05, 0.10,   #°¢ÀÚ»êº° Á¦¾àÁ¶°ÇÃß°¡
+bvec = c(1, c(0.10, 0.10, 0.05, 0.05, 0.10,   #???Ú»êº° ï¿½ï¿½??ï¿½ï¿½???ß°?
               0.10, 0.05, 0.05, 0.03, 0.03),
          -c(0.25, 0.25, 0.20, 0.20, 0.20,
             0.20, 0.10, 0.10, 0.08, 0.08))  
@@ -205,31 +205,31 @@ w_7 = result$solution %>%
 print(w_7)
 
 
-######ÃÖ´ëºĞ»ê Æ÷Æ®Æú¸®¿À
-Dmat = covmat                                   #ºĞ»ê-°øºĞ»ê Çà·Ä
-dvec = rep(0, 10)                               #º¤ÅÍºÎºĞ (Æ÷Æ®Æú¸®¿À ÃÖÀûÈ­¿¡¼­´Â ¿ªÇÒ x)
-Amat = t(rbind(sqrt(diag(covmat)), diag(10)))   #Á¦¾àÁ¶°Ç(ÁÂº¯)
-bvec = c(1, rep(0, 10))                         #Á¦¾àÁ¶°Ç(¿ìº¯)
-meq = 1                                         #µîÀ§Á¦¾àÁ¶°Ç (ºñÁßÀÇ ÇÕÀÌ 1)
+######?Ö´??Ğ»? ??Æ®??????
+Dmat = covmat                                   #?Ğ»?-???Ğ»? ????
+dvec = rep(0, 10)                               #???ÍºÎº? (??Æ®?????? ????È­?????? ???? x)
+Amat = t(rbind(sqrt(diag(covmat)), diag(10)))   #ï¿½ï¿½??ï¿½ï¿½??(?Âº?)
+bvec = c(1, rep(0, 10))                         #ï¿½ï¿½??ï¿½ï¿½??(?ìº¯)
+meq = 1                                         #??ï¿½ï¿½ï¿½ï¿½??ï¿½ï¿½?? (?????? ???? 1)
 
 
 
-result = solve.QP(Dmat, dvec, Amat, bvec, meq)  #solce.QP() ÇÔ¼ö »ç¿ëÇØ¼­ ÃÖ´ëºĞ»ê Æ÷Æ®Æú¸®¿À ±¸¼º
+result = solve.QP(Dmat, dvec, Amat, bvec, meq)  #solce.QP() ?Ô¼? ?????Ø¼? ?Ö´??Ğ»? ??Æ®?????? ????
 
 w = result$solution %>%
-  round(., 4) %>%            #¹İ¿Ã¸²
+  round(., 4) %>%            #?İ¿Ã¸?
   setNames(colnames(rets))   
 
 print(w)
 
-#ÃÖÀûÈ­
+#????È­
 w = (w / sum(w)) %>%
   round(., 4)
 
 print(w)
 
 
-#±×·¡ÇÁ
+#?×·???
 data.frame(w) %>%
   ggplot(aes(x = factor(rownames(.), levels = rownames(.)),
              y = w)) +
@@ -239,8 +239,8 @@ data.frame(w) %>%
 
 
 
-#optimalPortfolio() ÇÔ¼ö »ç¿ë
-w = optimalPortfolio(covmat,                                        #Min -DR ¹æ¹ıÀ» »ç¿ë
+#optimalPortfolio() ?Ô¼? ????
+w = optimalPortfolio(covmat,                                        #Min -DR ????ï¿½ï¿½ ????
                      control = list(type = 'maxdiv',
                                     constraint = 'lo')) %>%
   round(., 4)
@@ -248,11 +248,11 @@ w = optimalPortfolio(covmat,                                        #Min -DR ¹æ¹
 print(w)
 
 
-##ÃÖ¼Ò& ÃÖ´ë ºñÁß Á¦¾àÁ¶°Ç Ãß°¡
-Dmat = covmat                                            #ºĞ»ê-°øºĞ»ê Çà·Ä
-dvec = rep(0, 10)                                        #º¤ÅÍºÎºĞ (Æ÷Æ®Æú¸®¿À ÃÖÀûÈ­¿¡¼­´Â ¿ªÇÒ x)
-Alb = -rep(0.05, 10) %*% matrix(1, 1, 10) + diag(10)     # -rep(0.05, 10) : -lb(ÃÖ¼Ò) ºÎºĞ / matrix(1, 1, 10) : e^T ºÎºĞ / diag(10) : I(´ÜÀ§Çà·Ä) ºÎºĞ 
-Aub = rep(0.20, 10) %*% matrix(1, 1, 10) - diag(10)      # rep(0.20, 10) : ub(ÃÖ´ë) ºÎºĞ / matrix(1, 1, 10) : e^T ºÎºĞ / diag(10) : I(´ÜÀ§Çà·Ä) ºÎºĞ
+##?Ö¼?& ?Ö´? ???? ï¿½ï¿½??ï¿½ï¿½?? ?ß°?
+Dmat = covmat                                            #?Ğ»?-???Ğ»? ????
+dvec = rep(0, 10)                                        #???ÍºÎº? (??Æ®?????? ????È­?????? ???? x)
+Alb = -rep(0.05, 10) %*% matrix(1, 1, 10) + diag(10)     # -rep(0.05, 10) : -lb(?Ö¼?) ?Îº? / matrix(1, 1, 10) : e^T ?Îº? / diag(10) : I(??ï¿½ï¿½????) ?Îº? 
+Aub = rep(0.20, 10) %*% matrix(1, 1, 10) - diag(10)      # rep(0.20, 10) : ub(?Ö´?) ?Îº? / matrix(1, 1, 10) : e^T ?Îº? / diag(10) : I(??ï¿½ï¿½????) ?Îº?
 
 Amat = t(rbind(sqrt(diag(covmat)), Alb, Aub))
 bvec = c(1, rep(0, 10), rep(0, 10))
@@ -268,7 +268,7 @@ w = (w / sum(w)) %>%
 print(w)
 
 
-#ÃÖ¼Ò & ÃÖ´ë [5%, 20%] Á¦¾àÁ¶°Ç ³Ö¾î¼­ ±×·¡ÇÁ ±×·Áº¸±â
+#?Ö¼? & ?Ö´? [5%, 20%] ï¿½ï¿½??ï¿½ï¿½?? ?Ö¾î¼­ ?×·??? ?×·ï¿½ï¿½???
 data.frame(w) %>%
   ggplot(aes(x = factor(rownames(.), levels = rownames(.)),
              y = w)) +
@@ -279,13 +279,13 @@ data.frame(w) %>%
 
 
 
-##ÀÚ»êº°Á¦¾àÁ¶°Ç Ãß°¡
+##?Ú»êº°ï¿½ï¿½??ï¿½ï¿½?? ?ß°?
 Dmat = covmat
 dvec = rep(0, 10)
-Alb = -c(0.10, 0.10, 0.05, 0.05, 0.10,            #ÃÖ¼ÒºÎºĞ ÀÚ»êº° Á¦¾àÁ¶°Ç
+Alb = -c(0.10, 0.10, 0.05, 0.05, 0.10,            #?Ö¼ÒºÎº? ?Ú»êº° ï¿½ï¿½??ï¿½ï¿½??
          0.10, 0.05, 0.05, 0.03, 0.03) %*%        
   matrix(1, 1, 10) + diag(10)
-Aub = c(0.25, 0.25, 0.20, 0.20, 0.20,             #ÃÖ´ëºÎºĞ ÀÚ»êº° Á¦¾àÁ¶°Ç
+Aub = c(0.25, 0.25, 0.20, 0.20, 0.20,             #?Ö´??Îº? ?Ú»êº° ï¿½ï¿½??ï¿½ï¿½??
         0.20, 0.10, 0.10, 0.08, 0.08) %*%
   matrix(1, 1, 10) - diag(10)
 
@@ -302,7 +302,7 @@ w = (w / sum(w)) %>%
 
 print(w)
 
-#±×·¡ÇÁ
+#?×·???
 data.frame(w) %>%
   ggplot(aes(x = factor(rownames(.), levels = rownames(.)),
              y = w)) +
@@ -313,10 +313,10 @@ data.frame(w) %>%
 
 
 
-#optimalPortfolio ÇÔ¼ö·Î Á¦¾àÁ¶°Ç Ãß°¡ÇØº¸±â
+#optimalPortfolio ?Ô¼??? ï¿½ï¿½??ï¿½ï¿½?? ?ß°??Øº???
 w_6 = optimalPortfolio(covmat,
                        control = list(type = 'maxdiv',
-                                      constraint = 'user', #Á¦¾àÁ¶°Ç Á÷Á¢ÀÔ·Â
+                                      constraint = 'user', #ï¿½ï¿½??ï¿½ï¿½?? ??ï¿½ï¿½?Ô·?
                                       LB = c(0.10, 0.10, 0.05, 0.05, 0.10,0.10, 0.05, 0.05, 0.03, 0.03),
                                       UB = c(0.25, 0.25, 0.20, 0.20, 0.20,0.20, 0.10, 0.10, 0.08, 0.08) %>%
   round(., 4) %>%
@@ -325,8 +325,8 @@ w_6 = optimalPortfolio(covmat,
 print(w_6)
 
 
-##À§Çè±â¿© Æ÷Æ®Æú¸®¿À
-#À§Çè±â¿©µµ ÇÔ¼ö ¸¸µé±â
+##ï¿½ï¿½???â¿© ??Æ®??????
+#ï¿½ï¿½???â¿©?? ?Ô¼? ??????
 get_RC = function(w, covmat) {
   port_vol = t(w) %*% covmat %*% w
   port_std = sqrt(port_vol)
@@ -338,24 +338,24 @@ get_RC = function(w, covmat) {
   return(RC)
 }
 
-#ÁÖ½Ä 60% Ã¤±Ç 40% Æ÷Æ®Æú¸®¿À À§Çè±â¿©µµ È®ÀÎ
-ret_stock_bond = rets[, c(1, 5)]                    #µ¥ÀÌÅÍ : ¹Ì±¹ÁÖ½Ä ¼öÀÍ·ü(SPY), ¹Ì±¹ Àå±âÃ¤(TLT)
-cov_stock_bond = cov(ret_stock_bond)                #ºĞ»ê-°øºĞ»ê Çà·Ä
-RC_stock_bond = get_RC(c(0.6, 0.4), cov_stock_bond) #À§Çè±â¿©µµ ±¸ÇÏ±â
-RC_stock_bond = round(RC_stock_bond, 4)             #¹İ¿Ã¸²
+#?Ö½? 60% Ã¤?? 40% ??Æ®?????? ï¿½ï¿½???â¿©?? È®??
+ret_stock_bond = rets[, c(1, 5)]                    #?????? : ?Ì±??Ö½? ???Í·?(SPY), ?Ì±? ????Ã¤(TLT)
+cov_stock_bond = cov(ret_stock_bond)                #?Ğ»?-???Ğ»? ????
+RC_stock_bond = get_RC(c(0.6, 0.4), cov_stock_bond) #ï¿½ï¿½???â¿©?? ???Ï±?
+RC_stock_bond = round(RC_stock_bond, 4)             #?İ¿Ã¸?
 
 print(RC_stock_bond)
 
 
-#rp() ÇÔ¼ö¸¦ ½á¼­ ÃÖÀûÈ­ÇÏ±â
+#rp() ?Ô¼??? ?á¼­ ????È­?Ï±?
 library(cccp)
 
-opt = rp(x0 = rep(0.1, 10),   #ÃÖÀûÈ­¸¦ À§ÇÑ ÃÊ±âÀÔ·Â°ª(µ¿ÀÏºñÁß 10%¾¿ ³Ö±â)
-         P = covmat,          #ºĞ»ê-°øºĞ»ê Çà·Ä
-         mrc = rep(0.1, 10))  #¸ñÇ¥·ÎÇÏ´Â ÀÚ»êº° À§Çè±â¿©µµ °ª(µ¿ÀÏºñÁß 10%)
+opt = rp(x0 = rep(0.1, 10),   #????È­?? ï¿½ï¿½?? ?Ê±??Ô·Â°?(???Ïº??? 10%?? ?Ö±?)
+         P = covmat,          #?Ğ»?-???Ğ»? ????
+         mrc = rep(0.1, 10))  #??Ç¥???Ï´? ?Ú»êº° ï¿½ï¿½???â¿©?? ??(???Ïº??? 10%)
 
 
-w = getx(opt) %>% drop()      #º¤ÅÍÇüÅÂ·Î ¸¸µé±â
+w = getx(opt) %>% drop()      #???????Â·? ??????
 w = (w / sum(w)) %>%
   round(., 4) %>%
   setNames(colnames(rets))
@@ -365,7 +365,7 @@ print(w)
 get_RC(w, covmat) %>% round(.,4)
 
 
-#ÀÚ»êº°·Î ´Ù¸¥ ºñÁßÀ» °¡Áö´Â Æ÷Æ®Æú¸®¿À ¸¸µé±â 
+#?Ú»êº°?? ?Ù¸? ????ï¿½ï¿½ ?????? ??Æ®?????? ?????? 
 opt = rp(x0 = rep(0.1, 10),
          P = covmat,
          mrc = c(0.15, 0.15, 0.15, 0.15, 0.10,
@@ -380,89 +380,89 @@ w = (w / sum(w)) %>%
 get_RC(w, covmat)
 print(w)
 
-#ÀÎµ¦½º Æ÷Æ®Æú¸®¿À ±¸¼º
-# »óÀ§ 200 Á¾¸ñÀÇ ½Ã°¡ÃÑ¾×ºñÁß °è»ê
+#?Îµ??? ??Æ®?????? ????
+# ??ï¿½ï¿½ 200 ï¿½ï¿½???? ?Ã°??Ñ¾×º??? ????
 library(stringr)
 library(dplyr)
 
-KOR_ticker = read.csv('C:\\Users\\sjyoo\\Desktop\\¿¬±¸\\ÄöÆ® Æ÷Æú\\KOR_ticker.csv',row.names = 1, stringsAsFactors = FALSE) 
+KOR_ticker = read.csv('C:\\Users\\sjyoo\\Desktop\\????\\??Æ® ????\\KOR_ticker.csv',row.names = 1, stringsAsFactors = FALSE) 
 
-#ÄÚ½ºÇÇ 200Áß »óÀ§ 200°³¸¸ °¡Á®¿À±â
+#?Ú½??? 200?? ??ï¿½ï¿½ 200???? ??ï¿½ï¿½?ï¿½ï¿½?
 KOSPI200 = KOR_ticker %>% 
-  filter(½ÃÀå±¸ºĞ == 'KOSPI') %>%
+  filter(???å±¸?? == 'KOSPI') %>%
   slice(1:200) %>%
-  mutate(½Ã°¡ÃÑ¾×ºñÁß = ½Ã°¡ÃÑ¾× / sum(½Ã°¡ÃÑ¾×))
+  mutate(?Ã°??Ñ¾×º??? = ?Ã°??Ñ¾? / sum(?Ã°??Ñ¾?))
 
 
 
-#½Ã°¢È­
+#?Ã°?È­
 library(ggplot2)
 
 KOSPI200 %>% 
-  ggplot(aes(x = reorder(Á¾¸ñ¸í, -½Ã°¡ÃÑ¾×ºñÁß), y = ½Ã°¡ÃÑ¾×ºñÁß)) +
+  ggplot(aes(x = reorder(ï¿½ï¿½????, -?Ã°??Ñ¾×º???), y = ?Ã°??Ñ¾×º???)) +
   geom_point() +
-  xlab('Á¾¸ñ¸í') +
-  ylab('½Ã°¡ÃÑ¾×ºñÁß(%)') +
+  xlab('ï¿½ï¿½????') +
+  ylab('?Ã°??Ñ¾×º???(%)') +
   scale_y_continuous(labels = scales::percent)
 
 
-#±×¸² ¾ÈÀÌ»İ -> ¼öÁ¤ÇÏ±â
+#?×¸? ???Ì»? -> ??ï¿½ï¿½?Ï±?
 KOSPI200 %>% 
-  ggplot(aes(x = reorder(Á¾¸ñ¸í, -½Ã°¡ÃÑ¾×ºñÁß), y = ½Ã°¡ÃÑ¾×ºñÁß)) +   #½Ã°¡ÃÑ¾×ºñÁßÀ¸·Î xÃà Á¤¸®
+  ggplot(aes(x = reorder(ï¿½ï¿½????, -?Ã°??Ñ¾×º???), y = ?Ã°??Ñ¾×º???)) +   #?Ã°??Ñ¾×º???ï¿½ï¿½?? x?? ï¿½ï¿½??
   geom_point() +
-  xlab('Á¾¸ñ¸í') +
-  ylab('½Ã°¡ÃÑ¾×ºñÁß(·Î±× ½ºÄÉÀÏ¸µ)') +
-  scale_y_log10() +                                                     #yÃà ·Î±×°ªÀ¸·Î ½ºÄÉÀÏ¸µ
-  scale_x_discrete(breaks = KOSPI200[seq(1, 200, by = 5), 'Á¾¸ñ¸í']) +  #xÁß ÀÏºÎÁ¾¸ñ¸¸ Ç¥½Ã
-  theme(axis.text.x = element_text(angle = 60, hjust = 1))              #xÃà ±ÛÀÚ È¸Àü+ À§Ä¡Á¶Á¤
+  xlab('ï¿½ï¿½????') +
+  ylab('?Ã°??Ñ¾×º???(?Î±? ?????Ï¸?)') +
+  scale_y_log10() +                                                     #y?? ?Î±×°?ï¿½ï¿½?? ?????Ï¸?
+  scale_x_discrete(breaks = KOSPI200[seq(1, 200, by = 5), 'ï¿½ï¿½????']) +  #x?? ?Ïº?ï¿½ï¿½???? Ç¥??
+  theme(axis.text.x = element_text(angle = 60, hjust = 1))              #x?? ???? È¸??+ ï¿½ï¿½Ä¡ï¿½ï¿½ï¿½ï¿½
 
-#1¾ïÀÌÀÖÀ»¶§ ÄÚ½ºÇÇ 200À» µû¶ó°¡´Â(º¹Á¦ÇÏ´Â) Æ÷Æú¸¸µå´Â¹ı
+#1??????ï¿½ï¿½?? ?Ú½??? 200ï¿½ï¿½ ???ó°¡´?(??ï¿½ï¿½?Ï´?) ?????????Â¹?
 KOSPI200 = KOSPI200 %>%
-  mutate(¸Å¼ö±İ¾× = 100000000 * ½Ã°¡ÃÑ¾×ºñÁß,
-             ¸Å¼öÁÖ¼ö = ¸Å¼ö±İ¾× / Á¾°¡)
+  mutate(?Å¼??İ¾? = 100000000 * ?Ã°??Ñ¾×º???,
+             ?Å¼??Ö¼? = ?Å¼??İ¾? / ï¿½ï¿½??)
 
-KOSPI200 %>% select(¸Å¼ö±İ¾×, ¸Å¼öÁÖ¼ö) %>% head()
+KOSPI200 %>% select(?Å¼??İ¾?, ?Å¼??Ö¼?) %>% head()
 
 
-#¼Ò¼öÁ¡ ¹Ø ¹ö¸®±â(¹İ¿Ã¸²ÀÌ³ª ¿Ã¸²ÇÏ¸é º¸À¯±İ¾×º¸´Ù Ä¿Áú¼öÀÖÀ½)
-KOSPI200 = KOSPI200 %>% mutate(¸Å¼öÁÖ¼ö = floor(¸Å¼öÁÖ¼ö))
-KOSPI200 %>% select(¸Å¼ö±İ¾×, ¸Å¼öÁÖ¼ö) %>% head()
+#?Ò¼?ï¿½ï¿½ ?? ??????(?İ¿Ã¸??Ì³? ?Ã¸??Ï¸? ??ï¿½ï¿½?İ¾×º??? Ä¿??????ï¿½ï¿½)
+KOSPI200 = KOSPI200 %>% mutate(?Å¼??Ö¼? = floor(?Å¼??Ö¼?))
+KOSPI200 %>% select(?Å¼??İ¾?, ?Å¼??Ö¼?) %>% head()
 
-#½ÇÁ¦¸Å¼ö±İ¾× ±¸ÇÏ±â
-inv_money = KOSPI200 %>% mutate(½ÇÁ¦¸Å¼ö±İ¾× = Á¾°¡ * ¸Å¼öÁÖ¼ö) %>%
-  summarize(sum(½ÇÁ¦¸Å¼ö±İ¾×))
+#??ï¿½ï¿½?Å¼??İ¾? ???Ï±?
+inv_money = KOSPI200 %>% mutate(??ï¿½ï¿½?Å¼??İ¾? = ï¿½ï¿½?? * ?Å¼??Ö¼?) %>%
+  summarize(sum(??ï¿½ï¿½?Å¼??İ¾?))
 
 print(inv_money)
 
-##ÆÑÅÍ¸¦ ÀÌ¿ëÇÑ ÀÎÇÚ½ºµå Æ÷Æ®Æú¸®¿À ±¸¼º
-#PBRÀ» ÀÌ¿ëÇØ ºñÁßÁ¶ÀıÇÏ±â
-KOSPI200 = KOSPI200 %>% select(Á¾¸ñ¸í, PBR, ½Ã°¡ÃÑ¾×ºñÁß) %>%
+##???Í¸? ?Ì¿??? ???Ú½??? ??Æ®?????? ????
+#PBRï¿½ï¿½ ?Ì¿??? ????ï¿½ï¿½???Ï±?
+KOSPI200 = KOSPI200 %>% select(ï¿½ï¿½????, PBR, ?Ã°??Ñ¾×º???) %>%
   mutate(PBR = as.numeric(PBR)) 
 
-#´Ü¼ø°¡°¨¹ı
+#?Ü¼???????
 KOSPI200 = KOSPI200 %>%
-  mutate(·©Å· = rank(PBR),
-           Á¶ÀıºñÁß = ifelse(·©Å· <= 100, ½Ã°¡ÃÑ¾×ºñÁß + 0.0005, ½Ã°¡ÃÑ¾×ºñÁß - 0.0005),  #»óÀ§ 100°³ ºñÁßÁõ°¡ / ÇÏÀ§ 100°³ ºñÁß°¨¼Ò
-           Á¶ÀıºñÁß = ifelse(Á¶ÀıºñÁß < 0, 0, Á¶ÀıºñÁß),                                  #0¹Ì¸¸ÀÎ Á¾¸ñÀº ÅõÀÚºñÁß 0 À¸·Î Á¶Á¤
-           Á¶ÀıºñÁß = Á¶ÀıºñÁß / sum(Á¶ÀıºñÁß),                                           #ºñÁßÀÇ ÇÕÀ» 1·Î ¸ÂÃß±âÀ§ÇØ ´Ù½Ã°è»ê
-           Â÷ÀÌ = Á¶ÀıºñÁß - ½Ã°¡ÃÑ¾×ºñÁß) 
+  mutate(??Å· = rank(PBR),
+           ï¿½ï¿½?????? = ifelse(??Å· <= 100, ?Ã°??Ñ¾×º??? + 0.0005, ?Ã°??Ñ¾×º??? - 0.0005),  #??ï¿½ï¿½ 100?? ???????? / ??ï¿½ï¿½ 100?? ???ß°???
+           ï¿½ï¿½?????? = ifelse(ï¿½ï¿½?????? < 0, 0, ï¿½ï¿½??????),                                  #0?Ì¸??? ï¿½ï¿½??ï¿½ï¿½ ???Úº??? 0 ï¿½ï¿½?? ï¿½ï¿½ï¿½ï¿½
+           ï¿½ï¿½?????? = ï¿½ï¿½?????? / sum(ï¿½ï¿½??????),                                           #?????? ??ï¿½ï¿½ 1?? ???ß±?ï¿½ï¿½?? ?Ù½Ã°???
+           ???? = ï¿½ï¿½?????? - ?Ã°??Ñ¾×º???) 
 library(tidyr)
 
 head(KOSPI200)
 
 
-KOSPI200 %>% filter(Á¶ÀıºñÁß == 0)
+KOSPI200 %>% filter(ï¿½ï¿½?????? == 0)
 
-#½Ã°¢È­
+#?Ã°?È­
 KOSPI200 %>% 
-  ggplot(aes(x = reorder(Á¾¸ñ¸í, -½Ã°¡ÃÑ¾×ºñÁß), y = ½Ã°¡ÃÑ¾×ºñÁß)) +
+  ggplot(aes(x = reorder(ï¿½ï¿½????, -?Ã°??Ñ¾×º???), y = ?Ã°??Ñ¾×º???)) +
   geom_point() +
-  geom_point(data = KOSPI200, aes(x = reorder(Á¾¸ñ¸í, -½Ã°¡ÃÑ¾×ºñÁß), y = Á¶ÀıºñÁß),
+  geom_point(data = KOSPI200, aes(x = reorder(ï¿½ï¿½????, -?Ã°??Ñ¾×º???), y = ï¿½ï¿½??????),
              color = 'red', shape = 4) +
-  xlab('Á¾¸ñ¸í') +
-  ylab('ºñÁß(%)') +
+  xlab('ï¿½ï¿½????') +
+  ylab('????(%)') +
   coord_cartesian(ylim = c(0, 0.03)) +
-  scale_x_discrete(breaks = KOSPI200[seq(1, 200, by = 5), 'Á¾¸ñ¸í']) +
+  scale_x_discrete(breaks = KOSPI200[seq(1, 200, by = 5), 'ï¿½ï¿½????']) +
   scale_y_continuous(labels = scales::percent) +
   theme(axis.text.x = element_text(angle = 60, hjust = 1)) 
 
@@ -470,101 +470,101 @@ KOSPI200 %>%
 KOSPI200_mod = KOSPI200 %>% arrange(PBR)
 
 KOSPI200_mod %>% 
-  ggplot(aes(x = reorder(Á¾¸ñ¸í, PBR), y = Â÷ÀÌ)) +
+  ggplot(aes(x = reorder(ï¿½ï¿½????, PBR), y = ????)) +
   geom_point() +
-  geom_col(aes(x = reorder(Á¾¸ñ¸í, PBR), y = PBR /10000), fill = 'blue', alpha = 0.2) +
-  xlab('Á¾¸ñ¸í') +
-  ylab('Â÷ÀÌ(%)') +
+  geom_col(aes(x = reorder(ï¿½ï¿½????, PBR), y = PBR /10000), fill = 'blue', alpha = 0.2) +
+  xlab('ï¿½ï¿½????') +
+  ylab('????(%)') +
   scale_y_continuous(labels = scales::percent, 
                      sec.axis = sec_axis(~. * 10000, name = "PBR")) +
-  scale_x_discrete(breaks = KOSPI200_mod[seq(1, 200, by = 10), 'Á¾¸ñ¸í']) +
+  scale_x_discrete(breaks = KOSPI200_mod[seq(1, 200, by = 10), 'ï¿½ï¿½????']) +
   theme(axis.text.x = element_text(angle = 60, hjust = 1))
 
 
-#Z-score Á¤±ÔÈ­·Î ÆåÅÍ¿¡ ´ëÇÑ ³ëÃâ ±Ø´ëÈ­
+#Z-score ï¿½ï¿½??È­?? ???Í¿? ???? ???? ?Ø´?È­
 KOSPI200_tilt = KOSPI200 %>%
-  select(Á¾¸ñ¸í, PBR, ½Ã°¡ÃÑ¾×ºñÁß, ·©Å·) %>%
-  mutate(zscore = -scale(·©Å·),
+  select(ï¿½ï¿½????, PBR, ?Ã°??Ñ¾×º???, ??Å·) %>%
+  mutate(zscore = -scale(??Å·),
          cdf = pnorm(zscore),
-         ÅõÀÚºñÁß = ½Ã°¡ÃÑ¾×ºñÁß * cdf,
-         ÅõÀÚºñÁß = ÅõÀÚºñÁß / sum(ÅõÀÚºñÁß),
-         Â÷ÀÌ = ÅõÀÚºñÁß - ½Ã°¡ÃÑ¾×ºñÁß)
+         ???Úº??? = ?Ã°??Ñ¾×º??? * cdf,
+         ???Úº??? = ???Úº??? / sum(???Úº???),
+         ???? = ???Úº??? - ?Ã°??Ñ¾×º???)
 
 head(KOSPI200_tilt)
 
-#½Ã°¢È­
+#?Ã°?È­
 KOSPI200 %>% 
-  ggplot(aes(x = reorder(Á¾¸ñ¸í, -½Ã°¡ÃÑ¾×ºñÁß), y = ½Ã°¡ÃÑ¾×ºñÁß)) +
+  ggplot(aes(x = reorder(ï¿½ï¿½????, -?Ã°??Ñ¾×º???), y = ?Ã°??Ñ¾×º???)) +
   geom_point() +
-  geom_point(data = KOSPI200_tilt, aes(x = reorder(Á¾¸ñ¸í, -½Ã°¡ÃÑ¾×ºñÁß), y = ÅõÀÚºñÁß),
+  geom_point(data = KOSPI200_tilt, aes(x = reorder(ï¿½ï¿½????, -?Ã°??Ñ¾×º???), y = ???Úº???),
              color = 'red', shape = 4) +
-  xlab('Á¾¸ñ¸í') +
-  ylab('ºñÁß(%)') +
+  xlab('ï¿½ï¿½????') +
+  ylab('????(%)') +
   coord_cartesian(ylim = c(0, 0.03)) +
-  scale_x_discrete(breaks = KOSPI200[seq(1, 200, by = 5), 'Á¾¸ñ¸í']) +
+  scale_x_discrete(breaks = KOSPI200[seq(1, 200, by = 5), 'ï¿½ï¿½????']) +
   scale_y_continuous(labels = scales::percent) +
   theme(axis.text.x = element_text(angle = 60, hjust = 1)) 
 
-#Â÷ÀÌ ½Ã°¢È­
+#???? ?Ã°?È­
 KOSPI200_tilt %>%
-  ggplot(aes(x = reorder(Á¾¸ñ¸í, -½Ã°¡ÃÑ¾×ºñÁß), y = Â÷ÀÌ)) +
+  ggplot(aes(x = reorder(ï¿½ï¿½????, -?Ã°??Ñ¾×º???), y = ????)) +
   geom_point() +
   geom_hline(aes(yintercept = 0.005), color = 'red') + 
   geom_hline(aes(yintercept = -0.005), color = 'red') +
-  xlab('Á¾¸ñ¸í') +
-  ylab('ºñÁß Â÷ÀÌ(%)') +
-  scale_x_discrete(breaks = KOSPI200[seq(1, 200, by = 5), 'Á¾¸ñ¸í']) +
+  xlab('ï¿½ï¿½????') +
+  ylab('???? ????(%)') +
+  scale_x_discrete(breaks = KOSPI200[seq(1, 200, by = 5), 'ï¿½ï¿½????']) +
   scale_y_continuous(labels = scales::percent) +
   theme(axis.text.x = element_text(angle = 60, hjust = 1)) 
-#Â÷ÀÌ°¡ ³Ê¹«Å­! -> Á¦¾àÁ¶°Ç °ÉÇÊ¿äÀÖÀ½
+#???Ì°? ?Ê¹?Å­! -> ï¿½ï¿½??ï¿½ï¿½?? ???Ê¿???ï¿½ï¿½
 
-#Á¦¾àÁ¶°Ç 50bp¼³Á¤
+#ï¿½ï¿½??ï¿½ï¿½?? 50bp??ï¿½ï¿½
 
-while (max(abs(KOSPI200_tilt$Â÷ÀÌ)) > (0.005 + 0.00001)) {
+while (max(abs(KOSPI200_tilt$????)) > (0.005 + 0.00001)) {
   KOSPI200_tilt = KOSPI200_tilt %>%
-    mutate_at(vars(ÅõÀÚºñÁß), list(~ifelse(Â÷ÀÌ < -0.005, ½Ã°¡ÃÑ¾×ºñÁß - 0.005, ÅõÀÚºñÁß))) %>%  #Â÷ÀÌ°¡ 50bp ¹Ì¸¸ÀÌ¸é -50bp
-    mutate_at(vars(ÅõÀÚºñÁß), list(~ifelse(Â÷ÀÌ > 0.005, ½Ã°¡ÃÑ¾×ºñÁß + 0.005, ÅõÀÚºñÁß))) %>%  #Â÷ÀÌ°¡ 50bp ÃÊ°úÀÌ¸é +50bp
-    mutate(ÅõÀÚºñÁß = ÅõÀÚºñÁß / sum(ÅõÀÚºñÁß), 
-               Â÷ÀÌ = ÅõÀÚºñÁß - ½Ã°¡ÃÑ¾×ºñÁß)
+    mutate_at(vars(???Úº???), list(~ifelse(???? < -0.005, ?Ã°??Ñ¾×º??? - 0.005, ???Úº???))) %>%  #???Ì°? 50bp ?Ì¸??Ì¸? -50bp
+    mutate_at(vars(???Úº???), list(~ifelse(???? > 0.005, ?Ã°??Ñ¾×º??? + 0.005, ???Úº???))) %>%  #???Ì°? 50bp ?Ê°??Ì¸? +50bp
+    mutate(???Úº??? = ???Úº??? / sum(???Úº???), 
+               ???? = ???Úº??? - ?Ã°??Ñ¾×º???)
 }
 
 head(KOSPI200_tilt)
 
-#°á°ú ½Ã°¢È­
+#???? ?Ã°?È­
 KOSPI200_tilt %>%
-  ggplot(aes(x = reorder(Á¾¸ñ¸í, -½Ã°¡ÃÑ¾×ºñÁß), y = Â÷ÀÌ)) +
+  ggplot(aes(x = reorder(ï¿½ï¿½????, -?Ã°??Ñ¾×º???), y = ????)) +
   geom_point() +
   geom_hline(aes(yintercept = 0.005), color = 'red') + 
   geom_hline(aes(yintercept = -0.005), color = 'red') +
-  xlab('Á¾¸ñ¸í') +
-  ylab('ºñÁß Â÷ÀÌ(%)') +
-  scale_x_discrete(breaks = KOSPI200[seq(1, 200, by = 5), 'Á¾¸ñ¸í']) +
+  xlab('ï¿½ï¿½????') +
+  ylab('???? ????(%)') +
+  scale_x_discrete(breaks = KOSPI200[seq(1, 200, by = 5), 'ï¿½ï¿½????']) +
   scale_y_continuous(labels = scales::percent) +
   theme(axis.text.x = element_text(angle = 60, hjust = 1)) 
 
-#ºñÁß ½Ã°¢È­
+#???? ?Ã°?È­
 KOSPI200 %>% 
-  ggplot(aes(x = reorder(Á¾¸ñ¸í, -½Ã°¡ÃÑ¾×ºñÁß), y = ½Ã°¡ÃÑ¾×ºñÁß)) +
+  ggplot(aes(x = reorder(ï¿½ï¿½????, -?Ã°??Ñ¾×º???), y = ?Ã°??Ñ¾×º???)) +
   geom_point() +
-  geom_point(data = KOSPI200_tilt, aes(x = reorder(Á¾¸ñ¸í, -½Ã°¡ÃÑ¾×ºñÁß), y = ÅõÀÚºñÁß),
+  geom_point(data = KOSPI200_tilt, aes(x = reorder(ï¿½ï¿½????, -?Ã°??Ñ¾×º???), y = ???Úº???),
              color = 'red', shape = 4) +
-  xlab('Á¾¸ñ¸í') +
-  ylab('ºñÁß(%)') +
+  xlab('ï¿½ï¿½????') +
+  ylab('????(%)') +
   coord_cartesian(ylim = c(0, 0.03)) +
-  scale_x_discrete(breaks = KOSPI200[seq(1, 200, by = 5), 'Á¾¸ñ¸í']) +
+  scale_x_discrete(breaks = KOSPI200[seq(1, 200, by = 5), 'ï¿½ï¿½????']) +
   scale_y_continuous(labels = scales::percent) +
   theme(axis.text.x = element_text(angle = 60, hjust = 1)) 
 
-#PBR ½Ã°¢È­
-KOSPI200_tilt_mod = KOSPI200_tilt %>% arrange(PBR)
+#PBR ?Ã°?È­
+KOSPI200_tilt_mod = KOSPI200_tilt %>% arrange(PBR) 
 
 KOSPI200_tilt_mod %>% 
-  ggplot(aes(x = reorder(Á¾¸ñ¸í, PBR), y = Â÷ÀÌ)) +
+  ggplot(aes(x = reorder(ï¿½ï¿½????, PBR), y = ????)) +
   geom_point() +
-  geom_col(aes(x = reorder(Á¾¸ñ¸í, PBR), y = PBR /2000), fill = 'blue', alpha = 0.2) +
-  xlab('Á¾¸ñ¸í') +
-  ylab('Â÷ÀÌ(%)') +
+  geom_col(aes(x = reorder(ï¿½ï¿½????, PBR), y = PBR /2000), fill = 'blue', alpha = 0.2) +
+  xlab('ï¿½ï¿½????') +
+  ylab('????(%)') +
   scale_y_continuous(labels = scales::percent, 
                      sec.axis = sec_axis(~. * 2000, name = "PBR")) +
-  scale_x_discrete(breaks = KOSPI200_mod[seq(1, 200, by = 10), 'Á¾¸ñ¸í']) +
+  scale_x_discrete(breaks = KOSPI200_mod[seq(1, 200, by = 10), 'ï¿½ï¿½????']) +
   theme(axis.text.x = element_text(angle = 60, hjust = 1))
