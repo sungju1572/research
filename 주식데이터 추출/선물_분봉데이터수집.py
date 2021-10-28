@@ -135,6 +135,8 @@ class Kiwoom(QAxWidget):
             close = self._comm_get_data(trcode, "", rqname, i, "현재가")
             volume = self._comm_get_data(trcode, "", rqname, i, "거래량")
             
+            
+            
             self.ohlcv['date'].append(date)
             self.ohlcv['open'].append(abs(float(open)))
             self.ohlcv['high'].append(abs(float(high)))
@@ -145,14 +147,14 @@ class Kiwoom(QAxWidget):
  
     def btn1_clicked(self): #버튼클릭시 동작
             tick_unit = self.combo.currentText()
-            kiwoom.set_input_value("종목코드", "105R5000")
+            kiwoom.set_input_value("종목코드", "105RB000")
             kiwoom.set_input_value("시간단위", tick_unit)
             kiwoom.comm_rq_data("OPT50029_req", "OPT50029", 0, "0101")
 
             
             while kiwoom.remained_data == True:
                 time.sleep(TR_REQ_TIME_INTERVAL)
-                kiwoom.set_input_value("종목코드", "105R5000")
+                kiwoom.set_input_value("종목코드", "105RB000")
                 kiwoom.set_input_value("시간단위", tick_unit)
                 kiwoom.comm_rq_data("OPT50029_req", "OPT50029", 2, "0101")
                 
@@ -168,7 +170,6 @@ class Kiwoom(QAxWidget):
             
             df1["year"]= df1["date"].str[0:8]
             df1["time"]= df1["date"].str[8:]
-            
 
             df1 = df1[::-1]      
             
@@ -183,13 +184,13 @@ class Kiwoom(QAxWidget):
             
     def btn2_clicked(self): #버튼클릭시 동작
             tick_unit = self.combo.currentText()    
-            kiwoom.set_input_value("종목코드", "101R6000")
+            kiwoom.set_input_value("종목코드", "101RC000")
             kiwoom.set_input_value("시간단위", tick_unit)
             kiwoom.comm_rq_data("OPT50029_req", "OPT50029", 0, "0101")
             
             while kiwoom.remained_data == True:
                 time.sleep(TR_REQ_TIME_INTERVAL)
-                kiwoom.set_input_value("종목코드", "101R6000")
+                kiwoom.set_input_value("종목코드", "101RC000")
                 kiwoom.set_input_value("시간단위", tick_unit)
                 kiwoom.comm_rq_data("OPT50029_req", "OPT50029", 2, "0101")
                 
@@ -224,4 +225,3 @@ if __name__ == "__main__":
     kiwoom.show()
     kiwoom.ohlcv = {'date': [], 'open': [], 'high': [], 'low': [], 'close': [], 'volume': []}
     sys.exit(app.exec_())
-    
