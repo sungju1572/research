@@ -170,7 +170,8 @@ class Kiwoom(QAxWidget):
             
             df1["year"]= df1["date"].str[0:8]
             df1["time"]= df1["date"].str[8:]
-
+            
+            
             df1 = df1[::-1]      
             
             del df1["date"]
@@ -207,7 +208,7 @@ class Kiwoom(QAxWidget):
             df1["year"]= df1["date"].str[0:8]
             df1["time"]= df1["date"].str[8:]
             
-
+            
             df1 = df1[::-1]      
             
             del df1["date"]
