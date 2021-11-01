@@ -180,7 +180,27 @@ class Kiwoom(QAxWidget):
             
             df1["time"] = df1["time"].str[0:4]
             
-            df1.to_csv("exam_{0}_{1}.csv".format("미니선물",today),index=False)            
+            df2 = pd.DataFrame(columns=[["year","time","open","high","low","close","volume"]])
+            
+            for i in range(0,len(df1),5):
+                 high = max([df1["high"].loc[i],df1["high"].loc[i+1],df1["high"].loc[i+2],df1["high"].loc[i+3],df1["high"].loc[i+4]])
+                 low = min([df1["low"].loc[i],df1["low"].loc[i+1],df1["low"].loc[i+2],df1["low"].loc[i+3],df1["low"].loc[i+4]])
+                 volume = sum([df1["volume"].loc[i],df1["volume"].loc[i+1],df1["volume"].loc[i+2],df1["volume"].loc[i+3],df1["volume"].loc[i+4]])
+                 df2 = df2.append(pd.Series([df1["year"].loc[i],
+                                            df1["time"].loc[i+4],
+                                            df1["open"].loc[i],
+                                            high,
+                                            low, 
+                                            df1["close"].loc[i+4],
+                                            volume],
+                                           index = df2.columns), ignore_index=True) 
+            
+            print(df2)
+            print(df1)
+        
+            
+            
+            #df1.to_csv("exam_{0}_{1}.csv".format("미니선물",today),index=False)            
            
             
     def btn2_clicked(self): #버튼클릭시 동작
@@ -215,6 +235,7 @@ class Kiwoom(QAxWidget):
             df1 = df1[["year","time","open","high","low","close","volume"]]
             
             df1["time"] = df1["time"].str[0:4]
+            
             
             df1.to_csv("exam_{0}_{1}.csv".format("코스피200선물",today), index=False)
 
