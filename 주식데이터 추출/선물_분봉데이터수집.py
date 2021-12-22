@@ -147,14 +147,14 @@ class Kiwoom(QAxWidget):
  
     def btn1_clicked(self): #버튼클릭시 동작
             tick_unit = self.combo.currentText()
-            kiwoom.set_input_value("종목코드", "105RB000")
+            kiwoom.set_input_value("종목코드", "105S1000")
             kiwoom.set_input_value("시간단위", tick_unit)
             kiwoom.comm_rq_data("OPT50029_req", "OPT50029", 0, "0101")
 
             
             while kiwoom.remained_data == True:
                 time.sleep(TR_REQ_TIME_INTERVAL)
-                kiwoom.set_input_value("종목코드", "105RB000")
+                kiwoom.set_input_value("종목코드", "105S1000")
                 kiwoom.set_input_value("시간단위", tick_unit)
                 kiwoom.comm_rq_data("OPT50029_req", "OPT50029", 2, "0101")
                 
@@ -168,11 +168,22 @@ class Kiwoom(QAxWidget):
             df1 = df[df["date"].str[0:8]==today]
             
             
-            df1["year"]= df1["date"].str[0:8]
-            df1["time"]= df1["date"].str[8:]
+            df1.rename(columns={"date" : "minute_time"}, inplace=True)
+
+            df1 = df1[['minute_time', 'open', 'close', 'low', 'high', 'volume']]
             
+            df1['minute_time']= df1['minute_time'].str[0:4] +"-"+ df1['minute_time'].str[4:6] +"-"+ df1['minute_time'].str[6:8] +" "+ df1['minute_time'].str[8:10] +":"+ df1['minute_time'].str[10:12] +":"+ df1['minute_time'].str[12:14]
+            
+        
             
             df1 = df1[::-1]      
+            
+            
+            """
+            
+                        
+            df1["year"]= df1["date"].str[0:8]
+            df1["time"]= df1["date"].str[8:]
             
             del df1["date"]
             
@@ -182,10 +193,27 @@ class Kiwoom(QAxWidget):
             
             df2 = pd.DataFrame(columns=[["year","time","open","high","low","close","volume"]])
             
+                
+            
             for i in range(0,len(df1),5):
-                 high = max([df1["high"].loc[i],df1["high"].loc[i+1],df1["high"].loc[i+2],df1["high"].loc[i+3],df1["high"].loc[i+4]])
-                 low = min([df1["low"].loc[i],df1["low"].loc[i+1],df1["low"].loc[i+2],df1["low"].loc[i+3],df1["low"].loc[i+4]])
-                 volume = sum([df1["volume"].loc[i],df1["volume"].loc[i+1],df1["volume"].loc[i+2],df1["volume"].loc[i+3],df1["volume"].loc[i+4]])
+                 high = max([df1["high"].loc[i],
+                             df1["high"].loc[i+1],
+                             df1["high"].loc[i+2],
+                             df1["high"].loc[i+3],
+                             df1["high"].loc[i+4]])
+                 
+                 low = min([df1["low"].loc[i],
+                            df1["low"].loc[i+1],
+                            df1["low"].loc[i+2],
+                            df1["low"].loc[i+3],
+                            df1["low"].loc[i+4]])
+                 
+                 volume = sum([df1["volume"].loc[i],
+                               df1["volume"].loc[i+1],
+                               df1["volume"].loc[i+2],
+                               df1["volume"].loc[i+3],
+                               df1["volume"].loc[i+4]])
+                 
                  df2 = df2.append(pd.Series([df1["year"].loc[i],
                                             df1["time"].loc[i+4],
                                             df1["open"].loc[i],
@@ -196,22 +224,24 @@ class Kiwoom(QAxWidget):
                                            index = df2.columns), ignore_index=True) 
             
             print(df2)
+            """
             print(df1)
         
             
+        
             
-            #df1.to_csv("exam_{0}_{1}.csv".format("미니선물",today),index=False)            
+            df1.to_csv("{0}_{1}.csv".format("mini_futures",today),index=False)            
            
             
     def btn2_clicked(self): #버튼클릭시 동작
             tick_unit = self.combo.currentText()    
-            kiwoom.set_input_value("종목코드", "101RC000")
+            kiwoom.set_input_value("종목코드", "101S3000")
             kiwoom.set_input_value("시간단위", tick_unit)
             kiwoom.comm_rq_data("OPT50029_req", "OPT50029", 0, "0101")
             
             while kiwoom.remained_data == True:
                 time.sleep(TR_REQ_TIME_INTERVAL)
-                kiwoom.set_input_value("종목코드", "101RC000")
+                kiwoom.set_input_value("종목코드", "101S3000")
                 kiwoom.set_input_value("시간단위", tick_unit)
                 kiwoom.comm_rq_data("OPT50029_req", "OPT50029", 2, "0101")
                 
@@ -225,22 +255,23 @@ class Kiwoom(QAxWidget):
             
             df1 = df[df["date"].str[0:8]==today]
             
-            df1["year"]= df1["date"].str[0:8]
-            df1["time"]= df1["date"].str[8:]
             
+            df1.rename(columns={"date" : "minute_time"}, inplace=True)
+
+            df1 = df1[['minute_time', 'open', 'close', 'low', 'high', 'volume']]
+            
+            df1['minute_time']= df1['minute_time'].str[0:4] +"-"+ df1['minute_time'].str[4:6] +"-"+ df1['minute_time'].str[6:8] +" "+ df1['minute_time'].str[8:10] +":"+ df1['minute_time'].str[10:12] +":"+ df1['minute_time'].str[12:14]
+            
+        
             
             df1 = df1[::-1]      
-            
-            del df1["date"]
-            df1 = df1[["year","time","open","high","low","close","volume"]]
-            
-            df1["time"] = df1["time"].str[0:4]
-            
-            
-            df1.to_csv("exam_{0}_{1}.csv".format("코스피200선물",today), index=False)
 
-
-
+            print(df1)
+            
+            df1.to_csv("{0}_{1}.csv".format("kospi_200_futures",today),index=False)  
+            
+            
+            
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     kiwoom = Kiwoom()
