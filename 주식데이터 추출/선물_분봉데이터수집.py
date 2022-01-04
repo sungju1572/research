@@ -165,8 +165,12 @@ class Kiwoom(QAxWidget):
                 
             df = pd.DataFrame(kiwoom.ohlcv, columns=['date','open', 'high', 'low', 'close', 'volume'])
             
-            df1 = df
+            
+            
+            
             #df1 = df[df["date"].str[0:8]==today]
+            
+            df1 = df[df["date"].str[0:4]=="2021"]
             
             
             df1.rename(columns={"date" : "minute_time"}, inplace=True)
@@ -230,6 +234,7 @@ class Kiwoom(QAxWidget):
         
             
         
+        
             
             df1.to_csv("{0}_{1}.csv".format("mini_futures",today),index=False)            
            
@@ -255,8 +260,9 @@ class Kiwoom(QAxWidget):
             df = pd.DataFrame(kiwoom.ohlcv, columns=['date','open', 'high', 'low', 'close', 'volume'])
             
             #df1 = df[df["date"].str[0:8]==today]
+            df1 = df[df["date"].str[0:4]=="2021"]
             
-            df1 = df
+            
             
             df1.rename(columns={"date" : "minute_time"}, inplace=True)
 
