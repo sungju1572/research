@@ -147,14 +147,14 @@ class Kiwoom(QAxWidget):
  
     def btn1_clicked(self): #버튼클릭시 동작
             tick_unit = self.combo.currentText()
-            kiwoom.set_input_value("종목코드", "105S1000")
+            kiwoom.set_input_value("종목코드", "105S2000")
             kiwoom.set_input_value("시간단위", tick_unit)
             kiwoom.comm_rq_data("OPT50029_req", "OPT50029", 0, "0101")
 
             
             while kiwoom.remained_data == True:
                 time.sleep(TR_REQ_TIME_INTERVAL)
-                kiwoom.set_input_value("종목코드", "105S1000")
+                kiwoom.set_input_value("종목코드", "105S2000")
                 kiwoom.set_input_value("시간단위", tick_unit)
                 kiwoom.comm_rq_data("OPT50029_req", "OPT50029", 2, "0101")
                 
@@ -170,7 +170,7 @@ class Kiwoom(QAxWidget):
             
             #df1 = df[df["date"].str[0:8]==today]
             
-            df1 = df[df["date"].str[0:4]=="2021"]
+            df1 = df[df["date"].str[0:4]=="2022"]
             
             
             df1.rename(columns={"date" : "minute_time"}, inplace=True)
@@ -260,7 +260,7 @@ class Kiwoom(QAxWidget):
             df = pd.DataFrame(kiwoom.ohlcv, columns=['date','open', 'high', 'low', 'close', 'volume'])
             
             #df1 = df[df["date"].str[0:8]==today]
-            df1 = df[df["date"].str[0:4]=="2021"]
+            df1 = df[df["date"].str[0:4]=="2022"]
             
             
             
