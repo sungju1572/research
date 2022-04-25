@@ -147,14 +147,14 @@ class Kiwoom(QAxWidget):
  
     def btn1_clicked(self): #버튼클릭시 동작
             tick_unit = self.combo.currentText()
-            kiwoom.set_input_value("종목코드", "105S4000")
+            kiwoom.set_input_value("종목코드", "105S5000")
             kiwoom.set_input_value("시간단위", tick_unit)
             kiwoom.comm_rq_data("OPT50029_req", "OPT50029", 0, "0101")
 
             
             while kiwoom.remained_data == True:
                 time.sleep(TR_REQ_TIME_INTERVAL)
-                kiwoom.set_input_value("종목코드", "105S4000")
+                kiwoom.set_input_value("종목코드", "105S5000")
                 kiwoom.set_input_value("시간단위", tick_unit)
                 kiwoom.comm_rq_data("OPT50029_req", "OPT50029", 2, "0101")
                 
